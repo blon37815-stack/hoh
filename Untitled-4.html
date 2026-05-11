@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Hệ Thống Quản Lý Điểm Sinh Viên | Màu sắc mới</title>
+    <style>
+        /* ==================== RESET & BIẾN MÀU (BẢNG MÀU MỚI - TƯƠI SÁNG, HIỆN ĐẠI) ==================== */
+        :root {
+            --primary: #4361ee;      /* xanh dương tươi */
+            --primary-dark: #3a0ca3;
+            --secondary: #4cc9f0;
+            --accent: #f72585;       /* hồng rực để nhấn, thay vì vàng/xanh cũ */
+            --success: #06d6a0;      /* xanh ngọc bích tươi mát */
+            --danger: #ef476f;
+            --warning: #fcbf49;
+            --light-bg: #fbfdff;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.45);
+            --text-dark: #1b2c4e;
+            --text-soft: #2b3b5c;
+            --shadow-sm: 0 18px 35px -12px rgba(0, 0, 0, 0.12);
+            --shadow-hover: 0 25px 40px -12px rgba(67, 97, 238, 0.25);
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2ff 0%, #e0eaff 40%, #f5f3ff 100%);
+            min-height: 100vh;
+            padding: 28px 24px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* hiệu ứng nền động nhẹ (bong bóng gradient) */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 80vw;
+            height: 80vw;
+            background: radial-gradient(circle at 30% 50%, rgba(76, 201, 240, 0.18), transparent 70%);
+            top: -20vh;
+            right: -20vw;
+            border-radius: 50%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 70vw;
+            height: 70vw;
+            background: radial-gradient(circle at 70% 80%, rgba(247, 37, 133, 0.08), transparent 70%);
+            bottom: -15vh;
+            left: -15vw;
+            border-radius: 50%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Cánh hoa / đốm sáng thay thế dễ thương */
+        .floating-dots {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dot {
+            position: absolute;
+            background: rgba(79, 70, 229, 0.2);
+            border-radius: 50%;
+            backdrop-filter: blur(2px);
+            animation: floatDot linear infinite;
+        }
+
+        @keyframes floatDot {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* container chính */
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.55fr;
+            gap: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* header mới */
+        .app-header {
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius-xl);
+            padding: 24px 38px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-circle {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), #7209b7);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 12px 24px -8px rgba(67, 97, 238, 0.35);
+            transition: transform 0.2s ease;
+        }
+
+        .logo-circle:hover {
+            transform: scale(1.03) rotate(2deg);
+        }
+
+        .header-text h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(120deg, #1e2b5c, #4361ee, #f72585);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .header-text p {
+            color: #5a6e8a;
+            font-weight: 500;
+        }
+
+        .student-count-badge {
+            background: linear-gradient(115deg, #f8f9ff, #ffffff);
+            padding: 12px 26px;
+            border-radius: 48px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255,255,255,0.6);
+            color: var(--primary-dark);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+        }
+
+        /* Sidebar (form) */
+        .sidebar {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-xl);
+            padding: 32px 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: var(--transition);
+            height: fit-content;
+            position: sticky;
+            top: 28px;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            border-left: 5px solid var(--primary);
+            padding-left: 18px;
+        }
+
+        .form-icon {
+            background: linear-gradient(135deg, var(--primary), #4895ef);
+            width: 48px;
+            height: 48px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: white;
+        }
+
+        .form-header h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2c3e66;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 1.5px solid #e2edff;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+            color: #1f2a44;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+            outline: none;
+        }
+
+        select:disabled {
+            background: #f5f7fe;
+            color: #6c7c9e;
+            cursor: default;
+        }
+
+        /* nút bấm */
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 34px;
+        }
+
+        .btn {
+            padding: 12px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            cursor: pointer;
+            font-size: 0.95rem;
+            justify-content: center;
+            flex: 1 0 auto;
+        }
+
+        .btn-primary {
+            background: linear-gradient(105deg, var(--primary), #3a0ca3);
+            color: white;
+            box-shadow: 0 8px 18px -6px #4361ee66;
+        }
+
+        .btn-success {
+            background: linear-gradient(105deg, var(--success), #02c39a);
+            color: #0a2b1f;
+        }
+
+        .btn-danger {
+            background: linear-gradient(105deg, var(--danger), #d63e6b);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #eef3ff;
+            color: #334e77;
+            border: 1px solid #cddcff;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.02);
+            box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* main area */
+        .main-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-xl);
+            padding: 32px 32px 32px 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255,255,255,0.55);
+            position: relative;
+            min-height: 650px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            gap: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 1.65rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a2c4e, #4361ee);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 24px;
+            background: white;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .student-table th {
+            background: #f6f9ff;
+            padding: 18px 20px;
+            font-weight: 700;
+            color: #1f3a6b;
+            border-bottom: 2px solid #e1ecfe;
+        }
+
+        .student-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #eff3fc;
+            color: #2c3f66;
+            vertical-align: middle;
+        }
+
+        .student-table tr:hover {
+            background: #fafcff;
+            transition: 0.15s;
+        }
+
+        /* XẾP LOẠI BADGES mới */
+        .rating-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            text-align: center;
+            min-width: 105px;
+        }
+
+        .rating-excellent { background: #d9f0ec; color: #046c55; border-left: 4px solid #06d6a0; }
+        .rating-good { background: #e0edff; color: #1e5691; border-left: 4px solid #4361ee; }
+        .rating-average { background: #fff3df; color: #b45f06; border-left: 4px solid #fcbf49; }
+        .rating-poor { background: #ffe7ed; color: #bc2f5a; border-left: 4px solid #ef476f; }
+
+        .score-high { color: #02826a; font-weight: 800; }
+        .score-medium { color: #ea8c2b; font-weight: 700; }
+        .score-low { color: #e34d6e; font-weight: 800; }
+
+        /* khung thống kê góc dưới - thiết kế nổi bật hơn */
+        .stats-section {
+            position: absolute;
+            bottom: 32px;
+            right: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 16px 28px;
+            width: 310px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 20px 32px -16px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateX(-6px) translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 28px 36px -18px rgba(67, 97, 238, 0.3);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-1 { background: linear-gradient(145deg, #4361ee, #7209b7); }
+        .icon-2 { background: linear-gradient(145deg, #06d6a0, #0284c7); }
+        .icon-3 { background: linear-gradient(145deg, #f72585, #fd8b6f); }
+
+        .stat-info {
+            text-align: right;
+            flex: 1;
+        }
+
+        .stat-info h3 {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5c6f98;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: #8ca3c9;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .rating-guide {
+            background: #f5f9ff;
+            border-radius: 24px;
+            padding: 22px;
+            margin-top: 32px;
+            transition: 0.2s;
+        }
+
+        .guide-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .guide-item {
+            background: white;
+            border-radius: 60px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        @media (max-width: 1100px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .stats-section {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                margin-top: 20px;
+            }
+            .stat-card { width: 100%; max-width: 320px; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .stat-card { width: 100%; }
+            .form-actions .btn { flex: auto; }
+        }
+
+        .fade-in {
+            animation: fadeSlide 0.35s ease forwards;
+        }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        button:active { transform: translateY(0px) scale(0.97);}
+    </style>
+</head>
+<body>
+<div class="floating-dots" id="floatingDots"></div>
+
+<div class="app-container">
+    <!-- Header mới màu sắc tươi -->
+    <header class="app-header">
+        <div class="logo-section">
+            <div class="logo-circle">✨</div>
+            <div class="header-text">
+                <h1>🌟 Bảng điểm sinh viên</h1>
+                <p>Quản lý thông minh · Đánh giá trực quan</p>
+            </div>
+        </div>
+        <div class="student-count-badge">
+            🧑‍🎓 Tổng: <span id="studentCountHeader">0</span> SV
+        </div>
+    </header>
+
+    <!-- Sidebar thêm/sửa -->
+    <aside class="sidebar">
+        <div class="form-header">
+            <div class="form-icon">📌</div>
+            <h2>Thông tin sinh viên</h2>
+        </div>
+        <form id="studentForm">
+            <div class="input-group">
+                <div class="input-label"><span>🆔</span> Mã sinh viên</div>
+                <input type="text" id="studentId" placeholder="VD: 241201001" required>
+            </div>
+            <div class="input-group">
+                <div class="input-label"><span>👩‍🎓</span> Họ và tên</div>
+                <input type="text" id="studentName" placeholder="Nguyễn Hoàng Yến" required>
+            </div>
+            <div class="input-group">
+                <div class="input-label"><span>📊</span> Điểm (0 - 10)</div>
+                <input type="number" id="score" step="0.1" min="0" max="10" placeholder="Ví dụ: 8.7" required>
+            </div>
+            <div class="input-group">
+                <div class="input-label"><span>🏅</span> Xếp loại</div>
+                <select id="rating" disabled>
+                    <option>Tự động phân loại</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="addBtn">➕ Thêm mới</button>
+                <button type="button" class="btn btn-success" id="updateBtn" style="display:none;">✏️ Cập nhật</button>
+                <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">↩️ Hủy</button>
+                <button type="button" class="btn btn-secondary" id="resetBtn">🔄 Làm mới</button>
+            </div>
+        </form>
+        <div class="rating-guide">
+            <div style="display: flex; gap: 8px; align-items: center;"><span>🎯</span> <strong>Thang điểm mới</strong></div>
+            <div class="guide-items">
+                <div class="guide-item"><span class="rating-badge rating-excellent" style="padding:4px 14px">Xuất sắc</span> 9.0–10</div>
+                <div class="guide-item"><span class="rating-badge rating-good" style="padding:4px 14px">Giỏi</span> 8.0–8.9</div>
+                <div class="guide-item"><span class="rating-badge rating-good" style="padding:4px 14px">Khá</span> 6.5–7.9</div>
+                <div class="guide-item"><span class="rating-badge rating-average">Trung bình</span> 5.0–6.4</div>
+                <div class="guide-item"><span class="rating-badge rating-poor">Yếu</span> &lt;5.0</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main list -->
+    <main class="main-content">
+        <div class="content-header">
+            <h2>📋 Danh sách lớp học</h2>
+            <button class="btn btn-secondary" id="exportBtn">📎 Xuất CSV</button>
+        </div>
+        <div class="table-container">
+            <table class="student-table">
+                <thead>
+                    <tr><th>Mã SV</th><th>Họ tên</th><th>Điểm</th><th>Xếp loại</th><th>Thao tác</th></tr>
+                </thead>
+                <tbody id="studentTableBody"></tbody>
+            </table>
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">🌸</div>
+                <h3>Chưa có dữ liệu sinh viên</h3>
+                <p>Hãy thêm sinh viên đầu tiên để bắt đầu quản lý</p>
+            </div>
+        </div>
+
+        <!-- Thống kê góc (đẹp hơn) -->
+        <div class="stats-section">
+            <div class="stat-card"><div class="stat-icon icon-1">👥</div><div class="stat-info"><h3>Tổng số</h3><div class="stat-value" id="totalStudentsStat">0</div></div></div>
+            <div class="stat-card"><div class="stat-icon icon-2">🏅</div><div class="stat-info"><h3>Xuất sắc + Giỏi</h3><div class="stat-value" id="excellentStat">0</div></div></div>
+            <div class="stat-card"><div class="stat-icon icon-3">📚</div><div class="stat-info"><h3>Khá & Trung bình</h3><div class="stat-value" id="goodAverageStat">0</div></div></div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ---------- Dữ liệu mẫu và logic ----------
+    let students = [];
+    let currentEditIndex = -1;
+
+    // lưu dữ liệu mẫu để giao diện trông sinh động (có thể xóa)
+    const sampleData = [
+    ];
+    students.push(...sampleData);
+
+    // Hàm xếp loại
+    function getRating(score) {
+        if (score >= 9.0) return "Xuất sắc";
+        if (score >= 8.0) return "Giỏi";
+        if (score >= 6.5) return "Khá";
+        if (score >= 5.0) return "Trung bình";
+        return "Yếu";
+    }
+
+    function getRatingClass(rating) {
+        if (rating === "Xuất sắc" || rating === "Giỏi") return "rating-excellent";
+        if (rating === "Khá") return "rating-good";
+        if (rating === "Trung bình") return "rating-average";
+        return "rating-poor";
+    }
+
+    function getScoreClass(score) {
+        if (score >= 8.0) return "score-high";
+        if (score >= 5.0) return "score-medium";
+        return "score-low";
+    }
+
+    function renderStudents() {
+        const tbody = document.getElementById('studentTableBody');
+        const emptyDiv = document.getElementById('emptyState');
+        const headerCountSpan = document.getElementById('studentCountHeader');
+        const totalStatSpan = document.getElementById('totalStudentsStat');
+        
+        headerCountSpan.innerText = students.length;
+        totalStatSpan.innerText = students.length;
+        
+        if (students.length === 0) {
+            tbody.innerHTML = '';
+            emptyDiv.style.display = 'block';
+            document.getElementById('excellentStat').innerText = '0';
+            document.getElementById('goodAverageStat').innerText = '0';
+            return;
+        }
+        emptyDiv.style.display = 'none';
+        tbody.innerHTML = '';
+        
+        let excellentTotal = 0;   // xuất sắc + giỏi
+        let goodAvgTotal = 0;    // khá + trung bình
+        
+        students.forEach((student, idx) => {
+            const rating = getRating(student.score);
+            const ratingClass = getRatingClass(rating);
+            const scoreClass = getScoreClass(student.score);
+            
+            if (rating === "Xuất sắc" || rating === "Giỏi") excellentTotal++;
+            if (rating === "Khá" || rating === "Trung bình") goodAvgTotal++;
+            
+            const row = document.createElement('tr');
+            row.className = 'fade-in';
+            row.innerHTML = `
+                <td><strong>${escapeHtml(student.id)}</strong></td>
+                <td>${escapeHtml(student.name)}</td>
+                <td class="${scoreClass}">${student.score.toFixed(1)}</td>
+                <td><span class="rating-badge ${ratingClass}">${rating}</span></td>
+                <td>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" style="padding:6px 18px; font-size:0.8rem;" onclick="editStudent(${idx})">✏️ Sửa</button>
+                        <button class="btn btn-danger" style="padding:6px 18px; font-size:0.8rem;" onclick="deleteStudent(${idx})">🗑️ Xóa</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        document.getElementById('excellentStat').innerText = excellentTotal;
+        document.getElementById('goodAverageStat').innerText = goodAvgTotal;
+    }
+    
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+    
+    function addStudent() {
+        const id = document.getElementById('studentId').value.trim();
+        const name = document.getElementById('studentName').value.trim();
+        const scoreVal = parseFloat(document.getElementById('score').value);
+        
+        if(!id || !name) { alert('❌ Vui lòng nhập đầy đủ mã và tên!'); return; }
+        if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 10) { alert('❌ Điểm phải từ 0 đến 10'); return; }
+        
+        // check trùng mã khi thêm mới
+        if(currentEditIndex === -1 && students.some(s => s.id === id)) {
+            alert('⚠️ Mã sinh viên đã tồn tại. Vui lòng nhập mã khác!');
+            return;
+        }
+        
+        const newStudent = { id, name, score: scoreVal };
+        if(currentEditIndex === -1) {
+            students.push(newStudent);
+        } else {
+            students[currentEditIndex] = newStudent;
+            resetFormToAddMode();
+        }
+        
+        renderStudents();
+        clearForm();
+        flashButtonMessage(document.getElementById('addBtn'), '✅ Đã lưu!', '#06d6a0');
+    }
+    
+    function editStudent(index) {
+        const student = students[index];
+        document.getElementById('studentId').value = student.id;
+        document.getElementById('studentName').value = student.name;
+        document.getElementById('score').value = student.score;
+        updateRatingPreview();
+        
+        currentEditIndex = index;
+        document.getElementById('addBtn').style.display = 'none';
+        document.getElementById('updateBtn').style.display = 'flex';
+        document.getElementById('cancelBtn').style.display = 'flex';
+        document.querySelector('.sidebar').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function deleteStudent(index) {
+        if(confirm('Xóa sinh viên này khỏi danh sách?')) {
+            students.splice(index, 1);
+            if(currentEditIndex === index) resetFormToAddMode();
+            renderStudents();
+            if(students.length === 0) clearForm();
+        }
+    }
+    
+    function clearForm() {
+        document.getElementById('studentForm').reset();
+        document.getElementById('rating').value = '';
+        resetFormToAddMode();
+    }
+    
+    function resetFormToAddMode() {
+        currentEditIndex = -1;
+        document.getElementById('addBtn').style.display = 'flex';
+        document.getElementById('updateBtn').style.display = 'none';
+        document.getElementById('cancelBtn').style.display = 'none';
+    }
+    
+    function updateRatingPreview() {
+        const score = parseFloat(document.getElementById('score').value);
+        const ratingSelect = document.getElementById('rating');
+        if(!isNaN(score)) {
+            ratingSelect.value = getRating(score);
+        } else ratingSelect.value = '';
+    }
+    
+    function flashButtonMessage(btn, msg, colorHint) {
+        const originalHtml = btn.innerHTML;
+        const originalBg = btn.style.background;
+        btn.innerHTML = `<span>✨</span> ${msg}`;
+        btn.style.background = colorHint || 'linear-gradient(105deg, #06d6a0, #0284c7)';
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.style.background = originalBg;
+        }, 1300);
+    }
+    
+    function exportData() {
+        if(students.length === 0) { alert('📁 Không có dữ liệu để xuất'); return; }
+        let csv = "Mã sinh viên,Họ tên,Điểm số,Xếp loại\n";
+        students.forEach(s => {
+            const rating = getRating(s.score);
+            csv += `"${s.id}","${s.name}",${s.score.toFixed(1)},"${rating}"\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = `bang_diem_${new Date().toISOString().slice(0,19)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    // tạo hiệu ứng chấm bay (nhẹ nhàng thay thế cánh hoa)
+    function createFloatingDots() {
+        const container = document.getElementById('floatingDots');
+        for(let i=0;i<28;i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            const size = Math.random() * 12 + 4;
+            dot.style.width = size + 'px';
+            dot.style.height = size + 'px';
+            dot.style.left = Math.random() * 100 + '%';
+            dot.style.bottom = '-20px';
+            const duration = Math.random() * 12 + 8;
+            dot.style.animation = `floatDot ${duration}s linear infinite`;
+            dot.style.animationDelay = Math.random() * 8 + 's';
+            dot.style.background = `radial-gradient(circle, rgba(67,97,238,0.3), rgba(247,37,133,0.2))`;
+            container.appendChild(dot);
+        }
+    }
+    
+    // sự kiện
+    document.addEventListener('DOMContentLoaded', () => {
+        createFloatingDots();
+        renderStudents();
+        
+        const form = document.getElementById('studentForm');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            addStudent();
+        });
+        document.getElementById('updateBtn').addEventListener('click', addStudent);
+        document.getElementById('cancelBtn').addEventListener('click', clearForm);
+        document.getElementById('resetBtn').addEventListener('click', clearForm);
+        document.getElementById('exportBtn').addEventListener('click', exportData);
+        document.getElementById('score').addEventListener('input', updateRatingPreview);
+    });
+</script>
+</body>
+</html>
